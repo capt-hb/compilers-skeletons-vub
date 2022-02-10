@@ -6,8 +6,20 @@
 
   (check-import-list
    "compiler.rkt"
-   '(check-paren-x64
-     interp-paren-x64
+   '(check-values-lang
+     uniquify
+     sequentialize-let
+     normalize-bind
+     select-instructions
+     uncover-locals
+     assign-fvars
+     replace-locations
+     assign-homes
+     flatten-begins
+     patch-instructions
+     implement-fvars
+     check-paren-x64
      generate-x64
-     wrap-x64-run-time
-     wrap-x64-boilerplate)))
+
+     interp-values-lang
+     interp-paren-x64)))

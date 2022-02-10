@@ -1,78 +1,164 @@
 #lang racket
 
 (require
- cpsc411/compiler-lib)
+ cpsc411/compiler-lib
+ cpsc411/2c-run-time)
 
 (provide
+ check-values-lang
+ uniquify
+ sequentialize-let
+ normalize-bind
+ select-instructions
+ uncover-locals
+ assign-fvars
+ replace-locations
+ assign-homes
+ flatten-begins
+ patch-instructions
+ implement-fvars
  check-paren-x64
- interp-paren-x64
  generate-x64
- wrap-x64-run-time
- wrap-x64-boilerplate)
 
-(define-syntax-rule (TODO stx)
-  (error "unfinished skeleton"))
+ interp-values-lang
 
-;; Optional; if you choose not to complete, implement a stub that returns the input
-(define (check-paren-x64-init p)
-  (TODO ...))
+ interp-paren-x64)
 
-;; Optional; if you choose not to complete, implement a stub that returns the input
-(define (check-paren-x64-syntax p)
-  (TODO ...))
+;; STUBS; delete when you've begun to implement the passes or replaced them with
+;; your own stubs.
+(define-values (check-values-lang
+                interp-values-lang
+                uniquify
+                sequentialize-let
+                normalize-bind
+                ;select-instructions
+                assign-homes
+                uncover-locals
+                assign-fvars
+                replace-locations
+                flatten-begins
+                patch-instructions
+                implement-fvars
+                check-paren-x64
+                ;generate-x64
+                )
+  (values
+   values
+   values
+   values
+   values
+   ; values
+   values
+   values
+   values
+   values
+   values
+   values
+   values
+   values
+   values
+   ;values
+   ))
 
-(define (check-paren-x64 p)
-  (check-paren-x64-init (check-paren-x64-syntax p)))
+;; TODO: Fill in.
+;; You might want to reuse check-paren-x64 and generate-x64 from milestone-1
 
-;; Optional; if you choose not to complete, implement a stub that returns a valid exit code
+(define (select-instructions p)
+
+  ; (Imp-cmf-lang-v3 value) -> (List-of (Asm-lang-v2 effect)) and (Asm-lang-v2 aloc)
+  ; Assigns the value v to a fresh temporary, returning two values: the list of
+  ; statements the implement the assignment in Loc-lang, and the aloc that the
+  ; value is stored in.
+  (define (assign-tmp v)
+    (TODO "Consider implementing assign-tmp."))
+
+  (define (select-tail e)
+    (TODO "Implement select-tail"))
+
+  (define (select-value e)
+    (TODO "Implement select-value"))
+
+  (define (select-effect e)
+    (TODO "Implement select-value"))
+
+  (match p
+    [`(module ,tail)
+     `(module () ,(select-tail tail))]))
+
 (define (interp-paren-x64 p)
-  (define (eval-instruction-sequence regfile s)
-    (if (empty? s)
-        ; If no more instructions, return exit code modulo 256 (since operating
-        ; systems return exit code modulo 256).
-        (modulo (dict-ref regfile 'rax) 256)
-        (TODO ...)))
-  (TODO ...))
+  ; Environment (List-of (paren-x64-v2 Statements)) -> Integer
+  (define (eval-instruction-sequence env sls)
+    (if (empty? sls)
+        (dict-ref env 'rax)
+        (TODO "Implement the fold over a sequence of Paren-x64-v2 /s/.")))
+
+  ; Environment Statement -> Environment
+  (define (eval-statement env s)
+    (TODO "Implement the transition function evaluating a Paren-x64-v2 /s/."))
+
+  ; (Paren-x64-v2 binop) -> procedure?
+  (define (eval-binop b)
+    (TODO "Implement the interpreter for Paren-x64-v2 /binop/."))
+
+  ; Environment (Paren-x64-v2 triv) -> Integer
+  (define (eval-triv regfile t)
+    (TODO "Implement the interpreter for Paren-x64-v2 /triv/."))
+
+  (TODO "Implement the interpreter for Paren-x64-v2 /p/."))
 
 (define (generate-x64 p)
-  ; Paren-x64-v1 -> x64-instruction-sequence
   (define (program->x64 p)
     (match p
       [`(begin ,s ...)
-       (TODO ...)]))
+       (TODO "generate-x64")]))
 
   (define (statement->x64 s)
-    (TODO ... ))
+    (TODO "generate-x64"))
+
+  (define (loc->x64 loc)
+    (TODO "generate-x64"))
 
   (define (binop->ins b)
-    (TODO ... ))
+    (TODO "generate-x64"))
 
   (program->x64 p))
 
-(define (wrap-x64-run-time str)
-  (TODO ...))
-
-(define (wrap-x64-boilerplate str)
-  (TODO ...))
+(current-pass-list
+ (list
+  check-values-lang
+  uniquify
+  sequentialize-let
+  normalize-bind
+  select-instructions
+  assign-homes
+  flatten-begins
+  patch-instructions
+  implement-fvars
+  generate-x64
+  wrap-x64-run-time
+  wrap-x64-boilerplate))
 
 (module+ test
   (require
    rackunit
    rackunit/text-ui
-   cpsc411/langs/v1
-   cpsc411/test-suite/public/v1)
+   cpsc411/test-suite/public/v3
+   ;; NB: Workaround typo in shipped version of cpsc411-lib
+   (except-in cpsc411/langs/v3 values-lang-v3)
+   cpsc411/langs/v2)
 
   (run-tests
-   (v1-public-test-suite
+   (v3-public-test-sutie
+    (current-pass-list)
     (list
-     check-paren-x64
-     generate-x64
-     wrap-x64-run-time
-     wrap-x64-boilerplate)
-    (list
-     interp-paren-x64-v1
-     interp-paren-x64-v1
-     #f
-     #f)
-    check-paren-x64
-    interp-paren-x64)))
+     interp-values-lang-v3
+     interp-values-lang-v3
+     interp-values-unique-lang-v3
+     interp-imp-mf-lang-v3
+     interp-imp-cmf-lang-v3
+     interp-asm-lang-v2
+     interp-nested-asm-lang-v2
+     interp-para-asm-lang-v2
+     interp-paren-x64-fvars-v2
+     interp-paren-x64-v2
+     #f #f))))
